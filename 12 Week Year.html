@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 Week Year</title>
+<style>
+  :root {
+    --bg: #0d1520;
+    --surface: #131f2e;
+    --surface2: #1a2a3e;
+    --border: #1e2e42;
+    --gold: #C8963E;
+    --gold-dim: #C8963E22;
+    --blue: #4E78A0;
+    --green: #3A8C6E;
+    --red: #C05C4A;
+    --purple: #7B5EA7;
+    --teal: #4A7C8C;
+    --text: #f0e6d3;
+    --text-mid: #a0b4c8;
+    --text-dim: #7a8fa8;
+    --text-faint: #4a6070;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* Layout */
+  .header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+  .header-left .eyebrow { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: .15em; }
+  .header-left .period-name { font-weight: 700; font-size: 16px; }
+  .header-right { font-size: 13px; color: var(--text-dim); }
+  .header-right span { color: var(--gold); font-weight: 700; }
+  .content { max-width: 600px; margin: 0 auto; padding: 20px 16px 100px; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); display: flex; }
+  .nav-btn { flex: 1; background: transparent; border: none; padding: 12px 8px 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-faint); font-size: 10px; letter-spacing: .05em; }
+  .nav-btn.active { color: var(--gold); }
+  .nav-btn .nav-icon { font-size: 18px; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .card-sm { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+
+  /* Forms */
+  input, textarea, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; color: var(--text); font-size: 15px; outline: none; font-family: inherit;
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-faint); }
+  textarea { resize: vertical; }
+  label { display: block; color: var(--text-mid); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+  .form-group { margin-bottom: 16px; }
+
+  /* Buttons */
+  .btn { border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: var(--gold); color: var(--bg); width: 100%; padding: 14px; font-size: 15px; border-radius: 10px; }
+  .btn-secondary { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+  .btn-ghost { background: var(--surface2); color: var(--text-mid); }
+  .btn-suggest { background: #4E78A015; color: var(--blue); border: 1px solid #4E78A040; white-space: nowrap; }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid #C05C4A40; width: 100%; padding: 12px; border-radius: 10px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+
+  /* Typography helpers */
+  .eyebrow { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: .15em; }
+  .section-title { color: var(--text); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+  .sub-label { font-size: 11px; color: var(--text-mid); text-transform: uppercase; letter-spacing: .1em; }
+  .muted { color: var(--text-dim); font-size: 13px; }
+  .faint { color: var(--text-faint); font-size: 13px; }
+
+  /* Progress bar */
+  .progress-track { background: #1e2a3a; border-radius: 99px; overflow: hidden; }
+  .progress-fill { border-radius: 99px; transition: width .4s ease; }
+
+  /* Score badge */
+  .score-badge { border-radius: 6px; padding: 2px 10px; font-size: 13px; font-weight: 700; border: 1px solid; }
+
+  /* Timeline */
+  .timeline { display: flex; gap: 3px; padding: 12px 0 8px; }
+  .tl-seg { flex: 1; position: relative; }
+  .tl-bar { border-radius: 99px; }
+  .tl-label { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-size: 9px; white-space: nowrap; }
+
+  /* Goal card */
+  .goal-card { border-radius: 14px; padding: 20px; margin-bottom: 16px; border: 1px solid; }
+  .goal-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .tactic-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tactic-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .tactic-text { color: #d0dde8; font-size: 14px; flex: 1; }
+  .tactic-del { background: transparent; border: none; color: var(--text-faint); cursor: pointer; font-size: 12px; padding: 2px 6px; }
+  .tactic-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .tactic-actions input { flex: 1; min-width: 100px; font-size: 14px; }
+
+  /* Day buttons */
+  .day-btn { border-radius: 8px; padding: 6px 10px; font-size: 12px; cursor: pointer; min-width: 42px; text-align: center; border: 1px solid; }
+  .day-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Week grid */
+  .week-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .week-btn { border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; border: 1px solid; }
+
+  /* Tab bar */
+  .tab-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab-btn { flex: 1; padding: 8px; border-radius: 7px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; }
+
+  /* Colors */
+  .color-picker { display: flex; gap: 8px; }
+  .color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+
+  /* Error */
+  .ai-error { color: var(--red); font-size: 12px; margin-top: 8px; padding: 6px 10px; background: #C05C4A15; border-radius: 6px; }
+
+  /* Grid 2col */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 800; }
+  .stat-label { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+
+  /* Setup screen */
+  .setup-outer { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .setup-inner { max-width: 480px; width: 100%; }
+  .setup-header { text-align: center; margin-bottom: 48px; }
+  .setup-header h1 { font-size: 36px; font-weight: 800; line-height: 1.1; margin-top: 8px; }
+  .date-range { background: var(--bg); border-radius: 10px; padding: 14px 16px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 60px 20px; }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* Score display */
+  .score-display { text-align: center; padding: 20px; }
+  .score-big { font-size: 48px; font-weight: 800; }
+
+  /* Utility */
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .flex-center { display: flex; align-items: center; }
+  .gap8 { gap: 8px; }
+  .mt8 { margin-top: 8px; }
+  .mt12 { margin-top: 12px; }
+  .mt16 { margin-top: 16px; }
+  .mb4 { margin-bottom: 4px; }
+  .mb8 { margin-bottom: 8px; }
+  .mb12 { margin-bottom: 12px; }
+  .mb16 { margin-bottom: 16px; }
+  .mb20 { margin-bottom: 20px; }
+  .hidden { display: none !important; }
+  .icon-btn { background: transparent; border: none; cursor: pointer; font-size: 14px; padding: 4px 8px; color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ═══════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="setup-outer">
+  <div class="setup-inner">
+    <div class="setup-header">
+      <div class="eyebrow">12 Week Year</div>
+      <h1>Set Your Period</h1>
+      <p class="muted" style="margin-top:12px">Every great result starts with a defined window.<br>Name it, date it, own it.</p>
+    </div>
+    <div class="card" style="border-radius:16px;padding:32px">
+      <div class="form-group">
+        <label>Period Name</label>
+        <input id="setup-name" value="My 12 Week Year" placeholder="e.g. Q3 Growth Sprint">
+      </div>
+      <div class="form-group">
+        <label>Start Date</label>
+        <input id="setup-date" type="date" style="color-scheme:dark">
+      </div>
+      <div class="date-range">
+        <div>
+          <div class="sub-label" style="margin-bottom:2px">Start</div>
+          <div id="setup-start-display" style="font-weight:600"></div>
+        </div>
+        <div style="color:var(--gold);font-size:20px">→</div>
+        <div style="text-align:right">
+          <div class="sub-label" style="margin-bottom:2px">End (Week 12)</div>
+          <div id="setup-end-display" style="font-weight:600"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="beginPeriod()">Begin My 12 Weeks →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══════════════════════════════════════════════════════════ -->
+<div id="screen-app" class="hidden">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="eyebrow">12 Week Year</div>
+      <div class="period-name" id="header-period-name"></div>
+    </div>
+    <div class="header-right"><span id="header-week">W1</span> / 12</div>
+  </div>
+
+  <!-- Content area -->
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard">
+      <div class="card" style="background:linear-gradient(135deg,#131f2e,#1a2a3e);border-radius:16px;padding:24px;margin-bottom:20px">
+        <div class="eyebrow mb8" id="dash-period-name"></div>
+        <div class="flex-between mb16">
+          <div>
+            <div style="font-size:32px;font-weight:800;line-height:1" id="dash-week-label">Week 1</div>
+            <div class="muted mt4" id="dash-days-left"></div>
+          </div>
+          <div style="text-align:right" id="dash-avg-wrap">
+            <div class="sub-label mb4">Avg Score</div>
+            <div id="dash-avg-score"></div>
+          </div>
+        </div>
+        <div class="timeline" id="dash-timeline"></div>
+        <div class="flex-between mt12" style="font-size:11px;color:var(--text-faint)">
+          <span id="dash-start-date"></span>
+          <span id="dash-end-date"></span>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="stat-card"><div class="stat-num" style="color:var(--gold)" id="dash-goal-count">0</div><div class="stat-label">Active Goals</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--blue)" id="dash-tactic-count">0</div><div class="stat-label">Total Tactics</div></div>
+      </div>
+
+      <div id="dash-goals-section" class="mb20 hidden">
+        <div class="sub-label mb12">Your Goals</div>
+        <div id="dash-goals-list"></div>
+      </div>
+
+      <div id="dash-history-section" class="hidden">
+        <div class="card-sm mb20">
+          <div class="sub-label mb12">Weekly Execution History</div>
+          <div id="dash-history-list"></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="goToCurrentWeek()">→ Go to This Week</button>
+    </div>
+
+    <!-- GOALS -->
+    <div id="view-goals" class="hidden">
+      <div class="flex-between mb20">
+        <div class="section-title" style="margin-bottom:0">Goals & Tactics</div>
+        <button class="btn btn-ghost" onclick="openAddGoal()">+ Add Goal</button>
+      </div>
+
+      <!-- Add/Edit form -->
+      <div id="goal-form" class="card hidden" style="border-radius:14px;margin-bottom:20px">
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px" id="goal-form-title">New Goal</div>
+        <div class="form-group">
+          <label>Goal Title</label>
+          <input id="gf-title" placeholder="e.g. Launch TikTok Shop affiliate revenue">
+        </div>
+        <div class="form-group">
+          <label>Why This Matters (Vision)</label>
+          <textarea id="gf-vision" rows="3" placeholder="What does success look like? How will your life be different?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker" id="gf-colors"></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" style="padding:10px" onclick="saveGoal()">Save Goal</button>
+          <button class="btn btn-secondary" onclick="closeGoalForm()">Cancel</button>
+        </div>
+      </div>
+
+      <div id="goals-empty" class="empty hidden">
+        <div class="empty-icon">🎯</div>
+        <div style="font-size:16px;color:var(--text-dim);margin-bottom:8px">No goals yet</div>
+        <div class="faint">Add 1–3 focused goals for your 12-week period.</div>
+      </div>
+
+      <div id="goals-list"></div>
+    </div>
+
+    <!-- WEEK -->
+    <div id="view-week" class="hidden">
+      <div class="card-sm mb20">
+        <div class="sub-label mb12">Select Week</div>
+        <div class="week-grid" id="week-picker"></div>
+      </div>
+
+      <div class="flex-between mb16">
+        <div class="section-title" style="margin-bottom:0" id="week-title">Week 1</div>
+        <div id="week-score-badge"></div>
+      </div>
+
+      <div class="tab-bar mb20">
+        <button class="tab-btn" id="tab-planner" onclick="setWeekTab('planner')">📅 Planner</button>
+        <button class="tab-btn" id="tab-scorecard" onclick="setWeekTab('scorecard')">✅ Scorecard</button>
+      </div>
+
+      <div id="week-planner">
+        <p class="muted mb16">Tap the days you plan to do each tactic this week.</p>
+        <div id="planner-list"></div>
+      </div>
+
+      <div id="week-scorecard" class="hidden">
+        <p class="muted mb16">Check off what you actually completed. Only planned days show.</p>
+        <div id="scorecard-list"></div>
+        <div id="scorecard-total" class="card-sm hidden" style="text-align:center;margin-top:20px">
+          <div class="sub-label mb8" id="sc-week-label"></div>
+          <div class="score-big" id="sc-score"></div>
+          <div class="muted mt4" id="sc-message"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="view-settings" class="hidden">
+      <div class="section-title">Settings</div>
+      <div class="card mb16">
+        <div class="sub-label mb4">Current Period</div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:4px" id="settings-period-name"></div>
+        <div class="muted" id="settings-period-dates"></div>
+      </div>
+      <div class="card" style="border:1px solid #C05C4A30">
+        <div class="sub-label mb8">Danger Zone</div>
+        <p class="muted mb16">This will clear all your goals, tactics, and weekly data and start a new 12-week period.</p>
+        <button class="btn btn-danger" onclick="resetApp()">Start New 12-Week Period</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="setView('dashboard')"><span class="nav-icon">⌂</span>Home</button>
+    <button class="nav-btn" id="nav-goals" onclick="setView('goals')"><span class="nav-icon">🎯</span>Goals</button>
+    <button class="nav-btn" id="nav-week" onclick="setView('week')"><span class="nav-icon">📅</span>Week</button>
+    <button class="nav-btn" id="nav-settings" onclick="setView('settings')"><span class="nav-icon">⚙</span>Settings</button>
+  </nav>
+
+</div><!-- /screen-app -->
+
+<script>
+// ─── Constants ──────────────────────────────────────────────────────────────
+const COLORS = ['#C8963E','#4E78A0','#7B5EA7','#3A8C6E','#C05C4A','#4A7C8C'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const STORAGE_KEY = 'twelveweekyear_v1';
+
+// ─── State ──────────────────────────────────────────────────────────────────
+let state = { period: null, goals: [], weeks: {} };
+let currentView = 'dashboard';
+let selectedWeek = 1;
+let weekTab = 'planner';
+let editingGoalId = null;
+let selectedColor = COLORS[0];
+
+// ─── Persistence ────────────────────────────────────────────────────────────
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+function load() { try { const r = localStorage.getItem(STORAGE_KEY); if (r) state = JSON.parse(r); } catch(e) {} }
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+function uid() { return Math.random().toString(36).slice(2,9); }
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10);
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+
+function currentWeekNum() {
+  if (!state.period) return 1;
+  const start = new Date(state.period.startDate + 'T00:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  const diff = Math.floor((now - start) / 86400000);
+  if (diff < 0) return 1;
+  return Math.min(Math.max(Math.floor(diff/7)+1, 1), 12);
+}
+
+function getWeekDates(weekNum) {
+  const start = addDays(state.period.startDate, (weekNum-1)*7);
+  return DAYS.map((label,i) => ({ label, date: addDays(start, i) }));
+}
+
+function scoreBadgeHTML(score) {
+  const color = score >= 85 ? '#3A8C6E' : score >= 65 ? '#C8963E' : '#C05C4A';
+  return `<span class="score-badge" style="color:${color};border-color:${color}40;background:${color}22">${score}%</span>`;
+}
+
+function calcWeekScore(weekNum) {
+  const wk = state.weeks[String(weekNum)] || {};
+  let planned = 0, done = 0;
+  state.goals.forEach(g => g.tactics.forEach(t => {
+    const pd = (wk.planned && wk.planned[t.id]) || [];
+    planned += pd.length;
+    pd.forEach(d => { if (wk.done && wk.done[t.id] && wk.done[t.id][d]) done++; });
+  }));
+  return planned > 0 ? Math.round((done/planned)*100) : null;
+}
+
+// ─── Tactic Library ─────────────────────────────────────────────────────────
+const TACTICS = {
+  tiktok: [
+    'Post 1 TikTok video every weekday',
+    'Reply to all comments within 2 hours of posting',
+    'Batch film 10 videos every Saturday',
+    'Research TikTok Shop products every Monday',
+    'Add affiliate links to every applicable video',
+    'Review TikTok analytics every Sunday',
+    'Engage with 15 creators in your niche daily',
+    'Test one new content format each week',
+    'Submit 2 new brand collab applications per week',
+    'Stitch or duet 2 trending videos per week',
+  ],
+  social: [
+    'Post content to social media 5 days per week',
+    'Reply to every comment within 2 hours of posting',
+    'Review analytics every Sunday and adjust strategy',
+    'Research 3 trending formats each Monday',
+    'Engage with 20 accounts in your niche daily',
+    'Cross-post content to all platforms same day',
+    'Write all captions for the week every Sunday',
+    'DM 5 potential partners each week',
+  ],
+  income: [
+    'Contact 3 new revenue opportunities per week',
+    'Review income tracking every Friday',
+    'Dedicate 1 hour daily to income-generating activities',
+    'Set and review weekly revenue target every Monday',
+    'Follow up on all pending opportunities every Wednesday',
+    'Research one new income stream each week',
+  ],
+  health: [
+    'Exercise for at least 30 minutes 4 days per week',
+    'Meal prep healthy lunches every Sunday',
+    'Track food intake daily',
+    'Walk 8,000 steps every day',
+    'Drink 64oz of water daily',
+    'Get 7–8 hours of sleep each night',
+    'Weigh in every Monday morning',
+  ],
+  fitness: [
+    'Complete scheduled workout 4 days per week',
+    'Track every workout in a log',
+    'Increase weight or reps each week',
+    'Do 10 minutes of stretching daily',
+    'Hit daily protein goal every day',
+    'Take progress photos every Sunday morning',
+  ],
+  organize: [
+    'Declutter one area of the home each week',
+    'Spend 15 minutes tidying every evening',
+    'Process all mail and paperwork every Saturday',
+    'Donate or discard unused items every Sunday',
+    'Do a full home reset every Sunday afternoon',
+    'Deep-clean one room per week',
+  ],
+  home: [
+    'Complete one home improvement task per week',
+    'Spend 30 minutes on a house project every Saturday',
+    'Research and budget home projects every Monday',
+    'Schedule any contractor appointments weekly',
+    'Tackle one room deep-clean per week',
+  ],
+  spiritual: [
+    'Spend 15 minutes in prayer or meditation each morning',
+    'Read scripture or devotional every day',
+    'Attend or watch church service every week',
+    'Journal gratitude and reflections every evening',
+    'Connect with a faith community member each week',
+    'Listen to an inspiring sermon or podcast weekly',
+  ],
+  finance: [
+    'Review budget and spending every Sunday evening',
+    'Track every expense in a budgeting app daily',
+    'Move set amount to savings every payday',
+    'Review and cut one unnecessary subscription per week',
+    'Check account balances every Monday morning',
+    'Review progress toward financial goal every Friday',
+  ],
+  learning: [
+    'Read for 30 minutes every morning before work',
+    'Complete one course module per day',
+    'Take notes and review them every Sunday',
+    'Apply one new concept to real life each week',
+    'Listen to educational podcasts during commute',
+  ],
+  stress: [
+    'Spend 10 minutes journaling every morning',
+    'Take a 15-minute walk outside every day',
+    'Practice deep breathing or meditation daily',
+    'Identify and address one stressor per week',
+    'Set a hard work stop time every day',
+    'Say no to one non-essential commitment this week',
+  ],
+  default: [
+    'Spend 1 focused hour on this goal every weekday',
+    'Review progress and plan next steps every Sunday',
+    'Identify and remove one obstacle per week',
+    'Track daily actions in a journal',
+    'Share progress with an accountability partner weekly',
+    'Set a specific weekly target every Monday',
+  ],
+};
+
+const RULES = [
+  { keys:['tiktok','tts','ugc','shop','affiliate','creator'], lib:'tiktok' },
+  { keys:['social','instagram','youtube','post','content','reel'], lib:'social' },
+  { keys:['income','revenue','earn','profit','sales','sell'], lib:'income' },
+  { keys:['fitness','workout','gym','exercise','run','strength'], lib:'fitness' },
+  { keys:['health','weight','diet','nutrition','food','calorie'], lib:'health' },
+  { keys:['organiz','declutter','simplif','downsize','minimali'], lib:'organize' },
+  { keys:['home','house','renovation','repair','room'], lib:'home' },
+  { keys:['faith','church','bible','prayer','spiritual','god'], lib:'spiritual' },
+  { keys:['financ','budget','debt','save','invest','bill'], lib:'finance' },
+  { keys:['learn','study','course','skill','read','book'], lib:'learning' },
+  { keys:['stress','anxiety','peace','calm','mental','mindful'], lib:'stress' },
+];
+
+function suggestTactics(title, vision) {
+  const text = (title + ' ' + (vision||'')).toLowerCase();
+  let lib = 'default';
+  for (const rule of RULES) {
+    if (rule.keys.some(k => text.includes(k))) { lib = rule.lib; break; }
+  }
+  const pool = TACTICS[lib].slice().sort(() => Math.random()-.5);
+  return pool.slice(0,5);
+}
+
+// ─── Setup ──────────────────────────────────────────────────────────────────
+document.getElementById('setup-date').value = new Date().toISOString().slice(0,10);
+document.getElementById('setup-date').addEventListener('input', updateSetupDates);
+updateSetupDates();
+
+function updateSetupDates() {
+  const d = document.getElementById('setup-date').value;
+  if (!d) return;
+  document.getElementById('setup-start-display').textContent = fmtDate(d);
+  document.getElementById('setup-end-display').textContent = fmtDate(addDays(d, 83));
+}
+
+function beginPeriod() {
+  const name = document.getElementById('setup-name').value.trim() || 'My 12 Week Year';
+  const startDate = document.getElementById('setup-date').value;
+  if (!startDate) return;
+  state.period = { name, startDate };
+  save();
+  selectedWeek = currentWeekNum();
+  showApp();
+}
+
+// ─── App Init ────────────────────────────────────────────────────────────────
+load();
+if (state.period) {
+  selectedWeek = currentWeekNum();
+  showApp();
+} else {
+  document.getElementById('screen-setup').classList.remove('hidden');
+}
+
+function showApp() {
+  document.getElementById('screen-setup').classList.add('hidden');
+  document.getElementById('screen-app').classList.remove('hidden');
+  setView('dashboard');
+  buildColorPicker();
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  ['dashboard','goals','week','settings'].forEach(id => {
+    document.getElementById('view-'+id).classList.toggle('hidden', id !== v);
+    const btn = document.getElementById('nav-'+id);
+    if (btn) btn.classList.toggle('active', id === v);
+  });
+  if (v === 'dashboard') renderDashboard();
+  if (v === 'goals') renderGoals();
+  if (v === 'week') renderWeek();
+  if (v === 'settings') renderSettings();
+}
+
+function goToCurrentWeek() {
+  selectedWeek = currentWeekNum();
+  setView('week');
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+function renderDashboard() {
+  if (!state.period) return;
+  const wk = currentWeekNum();
+  const endDate = addDays(state.period.startDate, 83);
+  const daysLeft = Math.max(0, Math.ceil((new Date(endDate+'T00:00:00') - new Date()) / 86400000));
+
+  document.getElementById('header-period-name').textContent = state.period.name;
+  document.getElementById('header-week').textContent = 'W'+wk;
+  document.getElementById('dash-period-name').textContent = state.period.name;
+  document.getElementById('dash-week-label').textContent = 'Week '+wk;
+  document.getElementById('dash-days-left').textContent = 'of 12 · '+daysLeft+' days remaining';
+  document.getElementById('dash-start-date').textContent = fmtDate(state.period.startDate);
+  document.getElementById('dash-end-date').textContent = fmtDate(endDate);
+  document.getElementById('dash-goal-count').textContent = state.goals.length;
+  document.getElementById('dash-tactic-count').textContent = state.goals.reduce((a,g) => a+g.tactics.length, 0);
+
+  // Timeline
+  const tl = document.getElementById('dash-timeline');
+  tl.innerHTML = '';
+  for (let i=1;i<=12;i++) {
+    const past = i < wk, cur = i === wk;
+    const seg = document.createElement('div');
+    seg.className = 'tl-seg';
+    seg.innerHTML = `<div class="tl-bar" style="height:${cur?8:5}px;margin-top:${cur?0:1.5}px;background:${past?'#C8963E':cur?'#f0e6d3':'#1e2e42'}"></div>`
+      + ((i===1||i===12||cur)?`<div class="tl-label" style="color:${cur?'#C8963E':'#4a6070'};font-weight:${cur?700:400}">W${i}</div>`:'');
+    tl.appendChild(seg);
+  }
+
+  // Avg score
+  const scores = [];
+  for (let i=1;i<=12;i++) { const s=calcWeekScore(i); if(s!==null) scores.push(s); }
+  if (scores.length > 0) {
+    const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    document.getElementById('dash-avg-score').innerHTML = scoreBadgeHTML(avg);
+    document.getElementById('dash-avg-wrap').classList.remove('hidden');
+  } else {
+    document.getElementById('dash-avg-wrap').classList.add('hidden');
+  }
+
+  // Goals list
+  if (state.goals.length > 0) {
+    document.getElementById('dash-goals-section').classList.remove('hidden');
+    document.getElementById('dash-goals-list').innerHTML = state.goals.map(g =>
+      `<div style="background:var(--surface);border:1px solid ${g.color}30;border-left:3px solid ${g.color};border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="font-weight:600;font-size:15px">${g.title}</div>
+        <div style="color:var(--text-faint);font-size:12px;margin-top:2px">${g.tactics.length} tactic${g.tactics.length!==1?'s':''}</div>
+      </div>`
+    ).join('');
+  } else {
+    document.getElementById('dash-goals-section').classList.add('hidden');
+  }
+
+  // History
+  if (scores.length > 0) {
+    document.getElementById('dash-history-section').classList.remove('hidden');
+    let html = '';
+    for (let i=0;i<12;i++) {
+      const s = calcWeekScore(i+1);
+      if (s===null) continue;
+      const c = s>=85?'#3A8C6E':s>=65?'#C8963E':'#C05C4A';
+      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div style="color:var(--text-dim);font-size:12px;width:50px">Wk ${i+1}</div>
+        <div style="flex:1"><div class="progress-track" style="height:8px"><div class="progress-fill" style="height:8px;width:${s}%;background:${c}"></div></div></div>
+        ${scoreBadgeHTML(s)}
+      </div>`;
+    }
+    document.getElementById('dash-history-list').innerHTML = html;
+  } else {
+    document.getElementById('dash-history-section').classList.add('hidden');
+  }
+}
+
+// ─── Goals ────────────────────────────────────────────────────────────────────
+function renderGoals() {
+  const list = document.getElementById('goals-list');
+  const empty = document.getElementById('goals-empty');
+  if (state.goals.length === 0) { empty.classList.remove('hidden'); list.innerHTML=''; return; }
+  empty.classList.add('hidden');
+
+  list.innerHTML = state.goals.map(g => `
+    <div class="goal-card" style="background:var(--surface);border-color:${g.color}30;border-left:3px solid ${g.color}">
+      <div class="goal-card-header">
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:700;margin-bottom:4px">${escHtml(g.title)}</div>
+          ${g.vision?`<div style="color:var(--text-dim);font-size:13px;font-style:italic">${escHtml(g.vision)}</div>`:''}
+        </div>
+        <div style="display:flex;gap:8px;margin-left:12px">
+          <button class="icon-btn" onclick="openEditGoal('${g.id}')">✏️</button>
+          <button class="icon-btn" onclick="deleteGoal('${g.id}')">🗑️</button>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="sub-label mb8">Weekly Tactics</div>
+        <div id="tactics-${g.id}">
+          ${g.tactics.map(t => `
+            <div class="tactic-row">
+              <div class="tactic-dot" style="background:${g.color}"></div>
+              <span class="tactic-text">${escHtml(t.title)}</span>
+              <button class="tactic-del" onclick="deleteTactic('${g.id}','${t.id}')">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="tactic-actions">
+          <input id="new-tactic-${g.id}" placeholder="Type a tactic and press Enter..." onkeydown="if(event.key==='Enter')addTactic('${g.id}')">
+          <button class="btn btn-ghost" onclick="addTactic('${g.id}')">+ Add</button>
+          <button class="btn btn-suggest" onclick="suggestGoalTactics('${g.id}')">✨ Suggest Tactics</button>
+        </div>
+        <div id="ai-error-${g.id}" class="ai-error hidden"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openAddGoal() {
+  editingGoalId = null;
+  selectedColor = COLORS[state.goals.length % COLORS.length];
+  document.getElementById('gf-title').value = '';
+  document.getElementById('gf-vision').value = '';
+  document.getElementById('goal-form-title').textContent = 'New Goal';
+  updateColorPicker();
+  document.getElementById('goal-form').classList.remove('hidden');
+  document.getElementById('gf-title').focus();
+}
+
+function openEditGoal(id) {
+  const g = state.goals.find(x => x.id===id);
+  if (!g) return;
+  editingGoalId = id;
+  selectedColor = g.color;
+  document.getElementById('gf-title').value = g.title;
+  document.getElementById('gf-vision').value = g.vision || '';
+  document.getElementById('goal-form-title').textContent = 'Edit Goal';
+  updateColorPicker();
+  document.getElementById('goal-form').classList.remove('hidden');
+  document.getElementById('gf-title').focus();
+}
+
+function closeGoalForm() {
+  document.getElementById('goal-form').classList.add('hidden');
+  editingGoalId = null;
+}
+
+function saveGoal() {
+  const title = document.getElementById('gf-title').value.trim();
+  if (!title) return;
+  const vision = document.getElementById('gf-vision').value.trim();
+  if (editingGoalId) {
+    state.goals = state.goals.map(g => g.id===editingGoalId ? {...g, title, vision, color:selectedColor} : g);
+  } else {
+    state.goals.push({ id:uid(), title, vision, color:selectedColor, tactics:[] });
+  }
+  save(); closeGoalForm(); renderGoals();
+}
+
+function deleteGoal(id) {
+  state.goals = state.goals.filter(g => g.id!==id);
+  save(); renderGoals();
+}
+
+function addTactic(goalId) {
+  const inp = document.getElementById('new-tactic-'+goalId);
+  const text = inp.value.trim();
+  if (!text) return;
+  const g = state.goals.find(x => x.id===goalId);
+  if (!g) return;
+  g.tactics.push({ id:uid(), title:text });
+  inp.value = '';
+  save(); renderGoals();
+}
+
+function deleteTactic(goalId, tacticId) {
+  const g = state.goals.find(x => x.id===goalId);
+  if (!g) return;
+  g.tactics = g.tactics.filter(t => t.id!==tacticId);
+  save(); renderGoals();
+}
+
+function suggestGoalTactics(goalId) {
+  const g = state.goals.find(x => x.id===goalId);
+  if (!g) return;
+  const suggestions = suggestTactics(g.title, g.vision);
+  suggestions.forEach(s => g.tactics.push({ id:uid(), title:s }));
+  save(); renderGoals();
+}
+
+// ─── Color Picker ─────────────────────────────────────────────────────────────
+function buildColorPicker() {
+  const container = document.getElementById('gf-colors');
+  container.innerHTML = COLORS.map(c =>
+    `<div class="color-swatch" style="background:${c}" data-color="${c}" onclick="selectColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectColor(c) {
+  selectedColor = c;
+  updateColorPicker();
+}
+
+function updateColorPicker() {
+  document.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.style.borderColor = sw.dataset.color === selectedColor ? '#f0e6d3' : 'transparent';
+  });
+}
+
+// ─── Week View ────────────────────────────────────────────────────────────────
+function renderWeek() {
+  const cw = currentWeekNum();
+  // Week picker
+  let pickerHTML = '';
+  for (let i=1;i<=12;i++) {
+    const isCur = i===cw, isSel = i===selectedWeek;
+    pickerHTML += `<button class="week-btn" onclick="selectWeek(${i})"
+      style="background:${isSel?'#C8963E':isCur?'#C8963E22':'#0d1520'};color:${isSel?'#0d1520':isCur?'#C8963E':'#7a8fa8'};border-color:${isSel?'#C8963E':isCur?'#C8963E50':'#1e2e42'};font-weight:${isSel||isCur?700:400}">${i}</button>`;
+  }
+  document.getElementById('week-picker').innerHTML = pickerHTML;
+  document.getElementById('week-title').textContent = 'Week ' + selectedWeek;
+
+  const score = calcWeekScore(selectedWeek);
+  document.getElementById('week-score-badge').innerHTML = score!==null ? scoreBadgeHTML(score) : '';
+
+  setWeekTab(weekTab);
+}
+
+function selectWeek(w) { selectedWeek = w; renderWeek(); }
+
+function setWeekTab(tab) {
+  weekTab = tab;
+  document.getElementById('week-planner').classList.toggle('hidden', tab!=='planner');
+  document.getElementById('week-scorecard').classList.toggle('hidden', tab!=='scorecard');
+  document.getElementById('tab-planner').style.background = tab==='planner' ? '#C8963E' : 'transparent';
+  document.getElementById('tab-planner').style.color = tab==='planner' ? '#0d1520' : '#7a8fa8';
+  document.getElementById('tab-scorecard').style.background = tab==='scorecard' ? '#C8963E' : 'transparent';
+  document.getElementById('tab-scorecard').style.color = tab==='scorecard' ? '#0d1520' : '#7a8fa8';
+  if (tab==='planner') renderPlanner();
+  else renderScorecard();
+}
+
+function getWeekData() {
+  if (!state.weeks[selectedWeek]) state.weeks[selectedWeek] = { planned:{}, done:{} };
+  return state.weeks[selectedWeek];
+}
+
+function getAllTactics() {
+  const all = [];
+  state.goals.forEach(g => g.tactics.forEach(t => all.push({...t, goalTitle:g.title, goalColor:g.color})));
+  return all;
+}
+
+function renderPlanner() {
+  const tactics = getAllTactics();
+  const wkData = getWeekData();
+  const dates = getWeekDates(selectedWeek);
+
+  if (tactics.length === 0) {
+    document.getElementById('planner-list').innerHTML = '<div class="faint" style="text-align:center;padding:40px 0">Add goals and tactics first, then plan your week.</div>';
+    return;
+  }
+
+  document.getElementById('planner-list').innerHTML = tactics.map(t => {
+    const planned = (wkData.planned && wkData.planned[t.id]) || [];
+    const days = dates.map(d => {
+      const sel = planned.includes(d.label);
+      return `<button class="day-btn" onclick="toggleDay('${t.id}','${d.label}')"
+        style="background:${sel?t.goalColor:'#0d1520'};color:${sel?'#0d1520':'#7a8fa8'};border-color:${sel?t.goalColor:'#1e2e42'};font-weight:${sel?700:400}">
+        <div>${d.label}</div><div style="font-size:9px;opacity:.7">${d.date.slice(5).replace('-','/')}</div>
+      </button>`;
+    }).join('');
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${t.goalColor};border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:4px">${escHtml(t.title)}</div>
+      <div style="color:var(--text-faint);font-size:11px;margin-bottom:10px">${escHtml(t.goalTitle)}</div>
+      <div class="day-grid">${days}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(tacticId, day) {
+  const wk = getWeekData();
+  if (!wk.planned) wk.planned = {};
+  const days = wk.planned[tacticId] || [];
+  wk.planned[tacticId] = days.includes(day) ? days.filter(d=>d!==day) : [...days, day];
+  save(); renderPlanner();
+}
+
+function renderScorecard() {
+  const tactics = getAllTactics();
+  const wkData = getWeekData();
+
+  if (tactics.length === 0) {
+    document.getElementById('scorecard-list').innerHTML = '<div class="faint" style="text-align:center;padding:40px 0">Add goals and tactics first.</div>';
+    document.getElementById('scorecard-total').classList.add('hidden');
+    return;
+  }
+
+  let totalPlanned = 0, totalDone = 0;
+
+  document.getElementById('scorecard-list').innerHTML = tactics.map(t => {
+    const planned = (wkData.planned && wkData.planned[t.id]) || [];
+    if (planned.length === 0) return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;opacity:.5">
+      <div style="font-size:14px;color:var(--text-dim)">${escHtml(t.title)}</div>
+      <div style="font-size:12px;color:var(--text-faint);margin-top:4px">Not yet planned — go to Planner tab first</div>
+    </div>`;
+
+    const doneCount = planned.filter(d => wkData.done && wkData.done[t.id] && wkData.done[t.id][d]).length;
+    totalPlanned += planned.length;
+    totalDone += doneCount;
+    const pct = Math.round((doneCount/planned.length)*100);
+
+    const dayBtns = planned.map(day => {
+      const done = wkData.done && wkData.done[t.id] && wkData.done[t.id][day];
+      return `<button class="day-btn" onclick="toggleDone('${t.id}','${day}')"
+        style="background:${done?t.goalColor+'22':'#0d1520'};color:${done?t.goalColor:'#7a8fa8'};border-color:${done?t.goalColor:'#1e2e42'};font-weight:${done?700:400}">
+        ${done?'✓':'○'} ${day}</button>`;
+    }).join('');
+
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${t.goalColor};border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:600;font-size:14px">${escHtml(t.title)}</div>
+        <span style="color:var(--text-dim);font-size:12px">${doneCount}/${planned.length}</span>
+      </div>
+      <div class="progress-track mb8" style="height:6px"><div class="progress-fill" style="height:6px;width:${pct}%;background:${t.goalColor}"></div></div>
+      <div class="day-grid">${dayBtns}</div>
+    </div>`;
+  }).join('');
+
+  if (totalPlanned > 0) {
+    const score = Math.round((totalDone/totalPlanned)*100);
+    const color = score>=85?'#3A8C6E':score>=65?'#C8963E':'#C05C4A';
+    const msg = score>=85?'Outstanding execution. Keep the pressure on.':score>=65?'Good progress. Identify what\'s blocking the rest.':'Review your plan. What needs to change?';
+    document.getElementById('sc-week-label').textContent = 'Week '+selectedWeek+' Execution Score';
+    document.getElementById('sc-score').textContent = score+'%';
+    document.getElementById('sc-score').style.color = color;
+    document.getElementById('sc-message').textContent = msg;
+    document.getElementById('scorecard-total').classList.remove('hidden');
+  } else {
+    document.getElementById('scorecard-total').classList.add('hidden');
+  }
+}
+
+function toggleDone(tacticId, day) {
+  const wk = getWeekData();
+  if (!wk.done) wk.done = {};
+  if (!wk.done[tacticId]) wk.done[tacticId] = {};
+  wk.done[tacticId][day] = !wk.done[tacticId][day];
+  save(); renderScorecard();
+}
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+function renderSettings() {
+  if (!state.period) return;
+  document.getElementById('settings-period-name').textContent = state.period.name;
+  document.getElementById('settings-period-dates').textContent =
+    fmtDate(state.period.startDate) + ' → ' + fmtDate(addDays(state.period.startDate, 83));
+}
+
+function resetApp() {
+  state = { period:null, goals:[], weeks:{} };
+  save();
+  document.getElementById('screen-app').classList.add('hidden');
+  document.getElementById('screen-setup').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
