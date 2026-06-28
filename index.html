@@ -349,8 +349,9 @@ let editingGoalId = null;
 let selectedColor = COLORS[0];
 
 // ─── Persistence ────────────────────────────────────────────────────────────
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
-function load() { try { const r = localStorage.getItem(STORAGE_KEY); if (r) state = JSON.parse(r); } catch(e) {} }
+const WORKER_URL = 'https://twelve-week-year-worker.tracy-demarse.workers.dev';
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} fetch(WORKER_URL + '/data', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(state)}).catch(()=>{}); }
+function load() { try { const r = localStorage.getItem(STORAGE_KEY); if (r) state = JSON.parse(r); } catch(e) {} fetch(WORKER_URL + '/data').then(r=>r.json()).then(data=>{ if(data && data.period) { state = data; renderDashboard(); }}).catch(()=>{}); }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function uid() { return Math.random().toString(36).slice(2,9); }
